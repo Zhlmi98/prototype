@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>SSM BIZCLASSIFY HUB</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/img/ssm_logo.png" />
+        <!-- Font Awesome icons (free version)-->
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+        <!-- Google fonts-->
+        <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+    </head>
+    <body id="page-top">
+        <!-- Navigation-->
+        <!-- navbar-shrink kalau nak tukar colour -->
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav"> 
+            <div class="container">
+                <div class="imageposition">
+                    <a href="index.html"><img src="assets/img/home.png" alt="..." class="img-resize3" /></a>
+                </div>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav text-uppercase ms-auto py-4 py-lg-0">
+                        <li class="nav-item"><a class="nav-link" href="#services">Carian Melalui Terma Khas Aktiviti Perniagaan</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <section class="page-section">
+            <div class="container">
+                <div class="text-center">
+                    <div class="imageposition2">
+                        <a><img src="assets/img/jatanegara.png" alt="..." class="img-resize" /></a>
+                        <a><img src="assets/img/ssm_logo.png" alt="..." class="img-resize2" /></a>
+                    </div>
+                    <h2 class="section-heading text-uppercase">Carian Melalui Terma Khas Aktiviti Perniagaan</h2>
+                </div>
+                <div class="row text-center">
+                    <div class="search">
+                        <label class="search-label" for="searchQuery">Aktiviti:</label>
+                        <input type="text" id="searchQuery" class="search-input" placeholder="e.g: Food Truck">
+                        <button class="search-button" onclick="performSearch()">Cari</button>
+                    </div>
+                    <h6>Nota: Fungsi carian ini adalah terhad kepada aktiviti perniagaan yang disenaraikan sahaja.</h6>
+                        <div class="result-text" id="resultText"></div>
+                        <a class="reveal" href="Terma Khas.pdf" target="_blank">SENARAI TERMA KHAS AKTIVITI PERNIAGAAN </a>
+                    <div class="result" id="resultContainer2">
+                        <h2>JADUAL KOD MSIC</h2>
+                        <table class="result-table3" id="resultTable3">
+                            <thead>
+                                <tr>
+                                    <th>Aktiviti</th>
+                                    <th>Kod MSIC</th>
+                                    <th>Keterangan Kod</th>
+                                    <th>Seksyen/Sektor</th>
+                                    <th>Keterangan Seksyen/Sektor</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <footer class="footer py-4">
+            <div class="container">
+                <div class="row text-center">
+                     <div class="text-center">
+                        <p class="section-subheading1 text-muted"><strong>Sungguhpun segala usaha telah diambil untuk memastikan 
+                        maklumat yang diberi adalah betul dan terkini, pihak Suruhanjaya Syarikat Malaysia tidak boleh 
+                        dipertanggungkan bagi sebarang kerugian kerana maklumat yang tersilap atau tertinggal.</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+        <script>
+            function performSearch() {
+                var query = document.getElementById("searchQuery").value.toLowerCase(); // Convert query to lowercase
+                var resultContainer2 = document.getElementById("resultContainer2");
+                var resultTable3 = document.getElementById("resultTable3").getElementsByTagName("tbody")[0];
+            
+                fetch('https://sarabatrsya.pythonanywhere.com/NEWTERM')
+                    .then(response => response.json())
+                    .then(data => {
+                        resultTable3.innerHTML = "";
+                        resultText.innerHTML = "";
+                        var matchingItems = data.filter(item => rowContainsQuery(item, query));
+                        if (matchingItems.length > 0) {
+                            // Show the table headers
+                            document.querySelectorAll(".result-table3 thead").forEach(function(header) {
+                                header.style.display = "table-header-group";
+                            });
+            
+                            // Show the table header for resultTable2
+                            var resultTable3Header = document.querySelector(".result h2");
+                            resultTable3Header.style.display = "block"; // Display the table header
+                            // Iterate through matching items and display them
+                            matchingItems.forEach(matchingItem => {
+                                addRow2(resultTable3, matchingItem.Term, matchingItem.MSIC, matchingItem.Keterangan, matchingItem.Seksyen, matchingItem.NamaSeksyen);
+                            });
+            
+                        } else {
+                            document.querySelectorAll(".result-table3 thead").forEach(function(header) {
+                                header.style.display = "none";
+                            });
+            
+                            // Show the table header for resultTable2
+                            var resultTable2Header = document.querySelector(".result h2");
+                            resultTable2Header.style.display = "none"; // Display the table header
+                            // Display an error message or handle it as appropriate for your design
+                            resultText.innerHTML = 'Tiada carian ditemui. Sila rujuk senarai aktiviti perniagaan yang disediakan.';
+                            // alert('Tiada carian ditemui. Sila rujuk senarai aktiviti perniagaan yang disediakan.');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+            
+            function rowContainsQuery(item, query) {
+                for (var key in item) {
+                    if (item[key] && item[key].toString().toLowerCase().includes(query)) { // Convert item[key] to lowercase
+                        return true;
+                    }
+                }
+                return false;
+            }                         
+            function addRow2(table, Term, MSIC, Keterangan, Seksyen, NamaSeksyen) {
+                var row = table.insertRow();
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+                var cell4 = row.insertCell(3);
+                var cell5 = row.insertCell(4);
+                cell1.innerHTML = Term;
+                cell2.innerHTML = MSIC;
+                cell3.innerHTML = Keterangan;
+                cell4.innerHTML = Seksyen;
+                cell5.innerHTML = NamaSeksyen;
+            }
+            function myFunction() {
+                var dropdownContent = document.getElementById("myDropdown");
+                  if (dropdownContent.style.display === "block") {
+                    dropdownContent.style.display = "none";
+                  } else {
+                    dropdownContent.style.display = "block";
+                  }
+                }
+        </script>
+    </body>
+</html>
